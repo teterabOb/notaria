@@ -207,14 +207,14 @@ class App extends Component {
         <Navbar account={this.state.account} />
         <div className="container-fluid mt-5">
           <div className="row mb-3">
-            <div className="col-lg-12 bg-dark">
-              <div className="col-lg-12">
+            <div className="col-lg-12 ">
+              <div className="col-lg-12 bg-dark p-5 border border-success rounded">
                 <blockquote className="blockquote text-center text-white">
-                  <p className="mb-2">Tenemos 10.000 Chilean Peso Token para los primeros 10.000 documentos finalizados de manera satisfactoria. Se regalará
-                    1 por transaccion. Mantente atento a nuestras refes porque podrás disfrutar de múltiples beneficios.</p>
+                  <p className="mb-2">Tenemos 10.000 Chilean Peso Token para los primeros 10.000 documentos finalizados de manera satisfactoria. Se regalarán
+                    10 por transaccion. Mantente atento a nuestras redes porque podrás disfrutar de múltiples beneficios.</p>
                   <footer className="blockquote-footer">Atte. <cite title="Source Title">Notaria Digital de Chile</cite></footer>
-                  <p className="mb-2 mt-2 border border-white rounded"><label>CLPT Disponibles: {this.state.cantTokenContrato}</label></p>
-                  <p className="mb-0 border border-white"><label>CLPT: {this.state.cantTokenUsuario}</label></p>
+                  <p className="mb-2 mt-2 border border-white rounded bg-primary pt-2"><label>CLPT Disponibles: {this.state.cantTokenContrato}</label></p>
+                  <p className="mb-0 border border-white bg-primary pt-"><label>CLPT: {this.state.cantTokenUsuario}</label></p>
                 </blockquote>
               </div>
 

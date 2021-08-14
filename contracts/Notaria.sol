@@ -40,9 +40,10 @@ contract Notaria  {
     event DocumentoComprado(uint id, address owner);
     event premioTokenDado(address recipient);
     
+
     constructor(IERC20 _token) {
         token = _token;
-        owner = msg.sender;
+        owner = msg.sender;  
     }
 
     function EnviarPremioToken() private {
@@ -98,9 +99,7 @@ contract Notaria  {
         require(documentosNotariaEmisor[_docNotaria.owner][_idDocumento].destinatario == _docNotaria.destinatario, "El destinatario no coincide con el de origen");
         documentosNotariaEmisor[_docNotaria.owner][_idDocumento].estado = EstadoDocumentoNotaria.ACEPTADO;
 
-        if(ValidaDisponibilidadPremio() == true){
-            EnviarPremioToken();
-        }        
+       
         return true;
     }
     
@@ -117,7 +116,10 @@ contract Notaria  {
         require(documentosNotariaEmisor[_docNotaria.owner][_idDocumento].destinatario == _docNotaria.destinatario, "El destinatario no coincide con el de origen");
         
         documentosNotariaEmisor[_docNotaria.owner][_idDocumento].estado = EstadoDocumentoNotaria.FINALIZADO;
-        payable(_docNotaria.owner).transfer(msg.value);        
+        payable(_docNotaria.owner).transfer(msg.value);    
+        if(ValidaDisponibilidadPremio() == true){
+            EnviarPremioToken();
+        }     
         return true;
     }
     
@@ -149,6 +151,7 @@ contract Notaria  {
     } 
     
     function GetOwner() public view returns (address){
+        //return owner;
         return owner;
     }
 

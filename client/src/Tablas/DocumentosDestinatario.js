@@ -80,8 +80,12 @@ class DocumentosDestinatario extends Component {
                                             const idEstado = documento.estado
                                             this.execDocumento(idDocumento, idEstado)
                                         }}>
+                                             <div className="m-2">
+                                                <label className="form-label">Nombre Documento</label>                                         
+                                                <input readOnly type="text" className="form-control" defaultValue={documento.documento.nombre} />
+                                            </div>
                                             <div className="m-2">
-                                                <label className="form-label">Documento</label>
+                                                <label className="form-label">ID Documento</label>
                                                 <input name="id" readOnly type="text" className="form-control" defaultValue={documento.id} />
                                             </div>
                                             <div className="m-2">
@@ -96,10 +100,7 @@ class DocumentosDestinatario extends Component {
                                                 <label className="form-label">Estado</label>
                                                 <input readOnly type="text" className="form-control" defaultValue={this.retornaEstado(documento.estado)} />
                                             </div>
-                                            <div className="m-2">
-                                                <label className="form-label">Nombre Documento</label>                                         
-                                                <input readOnly type="text" className="form-control" defaultValue={documento.documento.nombre} />
-                                            </div>
+
                                             <div className="m-3">
                                                 {this.retornaBoton(documento.estado)}
                                             </div>

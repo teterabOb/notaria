@@ -13,15 +13,12 @@ class Navbar extends Component {
                         <li className="nav-item active">
                             <a className="nav-link" >Inicio <span className="sr-only">(current)</span></a>
                         </li>
-                        <li className="nav-item">
-                            <a className="nav-link" >Transacciones</a>
-                        </li>
-                        <li className="nav-item">
-                            <a className="nav-link" >Precio</a>
-                        </li>
+
                     </ul>
-                    <span className="navbar-text">
-                        Cuenta: {this.props.account}
+                    <span className="navbar-text border border-white rounded p-2 text-white bg-primary">
+                        <label>Account: </label>
+                        <label>{this.props.account}</label>
+                         
                     </span>
                 </div>
             </nav>
