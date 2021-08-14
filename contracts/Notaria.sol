@@ -71,7 +71,7 @@ contract Notaria  {
     }
     
     function AddDocumentoNotaria(uint _idDocumento, uint _precio, address _destinatario) public payable returns(EstadoDocumentoNotaria){
-        require(msg.sender != address(0), "El destinatario debe ser valido");
+        require(msg.sender != address(0), "El destinatario debe ser una direccion valida");
         require(msg.sender != _destinatario, "El emisor del documento debe ser distinto al destinatario");
         Documento memory doc = documentos[_idDocumento];
         require(doc.id > 0, "El documento no existe en nuestros registros");
