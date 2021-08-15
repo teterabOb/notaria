@@ -1,13 +1,21 @@
 import React, { Component, useState } from 'react';
+import Web3 from 'web3';
 
 class MantenedorNotaria extends Component {
     constructor(props) {
         super(props)          
     }  
+    
+    retornaPrecioEnETH(precio){
+        let web3 = window.web3
+        let precioETH = web3.utils.fromWei(precio, 'ether');
+        console.log(precioETH) 
+        return precioETH;
+    }
 
     render() {
         return (
-            <div className="col-lg-12 row">
+            <div className="col-lg-12 d-flex justify-content-center">
                 
                 {this.props.documentos.map((documento, key) => {                    
                     return (                        
@@ -24,7 +32,7 @@ class MantenedorNotaria extends Component {
                                 <div className="card border-primary mb-3 mx-2" >
                                     <div className="card-header bg-primary text-white" >{documento.id} # {documento.nombre}</div>
                                     <div className="card-body text-primary">
-                                        <h5 className="card-title">Precio realización trámite {documento.precio} ETH </h5>
+                                        <h5 className="card-title">Precio realización trámite { this.retornaPrecioEnETH(documento.precio) } ETH </h5>
                                         <p> 
                                         <input
                                             name="id"

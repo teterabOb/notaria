@@ -153,7 +153,10 @@ class App extends Component {
 
   nuevoDocumento(precio, nombre, estado) {
     this.setState({ loading: true })
-    this.state.notaria.methods.AddDocumento(precio, nombre, estado).send({ from: this.state.account })
+    let web3 = window.web3
+    let precioETH = web3.utils.toWei(precio, 'ether');
+
+    this.state.notaria.methods.AddDocumento(precioETH, nombre, estado).send({ from: this.state.account })
       .once('receipt', (receipt) => {
         this.setState({ loading: false })
       });
@@ -174,21 +177,24 @@ class App extends Component {
 
   async finalizaDocumento(id) {
     let docDestinatario = await this.state.notaria.methods.documentosNotariaDestinatario(this.state.account, id).call()
-    let precio = (docDestinatario.precio).toString()
-    let web3 = window.web3
-    let precioETH = web3.utils.toWei(precio, 'ether');
-
-    await this.state.notaria.methods.FinalizaDocumentoNotaria(id).send({ from: this.state.account, value: precioETH })
+    let precioDocumento = parseInt(docDestinatario.documento.precio, 10)
+    let precioFinalizacion = parseInt(docDestinatario.precio,10)
+    let precioFinal = (precioDocumento + precioFinalizacion)
+      
+    await this.state.notaria.methods.FinalizaDocumentoNotaria(id).send({ from: this.state.account, value: precioFinal })
       .on('error', (error) => {
 
       })
       .once('receipt', (receipt) => {
         this.loadBlockChainData()
       })
+      
   };
 
   async addDocumentoNotaria(id, precio, destinatario) {
-    await this.state.notaria.methods.AddDocumentoNotaria(id, precio, destinatario).send({ from: this.state.account })
+    let web3 = window.web3
+    let precioETH = web3.utils.toWei(precio, 'ether');
+    await this.state.notaria.methods.AddDocumentoNotaria(id, precioETH, destinatario).send({ from: this.state.account })
       .once('receipt', (receipt) => {
         this.loadBlockChainData()
       })
@@ -207,14 +213,36 @@ class App extends Component {
         <Navbar account={this.state.account} />
         <div className="container-fluid mt-5">
           <div className="row mb-3">
-            <div className="col-lg-12 ">
-              <div className="col-lg-12 bg-dark p-5 border border-success rounded">
+            <div className="col-lg-12 d-flex justify-content-center">
+              <div className="col-lg-4 bg-dark mx-2 p-5 border rounded ">
                 <blockquote className="blockquote text-center text-white">
                   <p className="mb-2">Tenemos 10.000 Chilean Peso Token para los primeros 10.000 documentos finalizados de manera satisfactoria. Se regalarán
-                    10 por transaccion. Mantente atento a nuestras redes porque podrás disfrutar de múltiples beneficios.</p>
+                    10 por trámite finalizado con éxito. Mantente atento a nuestras redes porque podrás disfrutar de múltiples beneficios.</p>
                   <footer className="blockquote-footer">Atte. <cite title="Source Title">Notaria Digital de Chile</cite></footer>
                   <p className="mb-2 mt-2 border border-white rounded bg-primary pt-2"><label>CLPT Disponibles: {this.state.cantTokenContrato}</label></p>
                   <p className="mb-0 border border-white bg-primary pt-"><label>CLPT: {this.state.cantTokenUsuario}</label></p>
+                </blockquote>
+              </div>
+              <div className="col-lg-4 bg-dark mx-2 p-3 border rounded ">
+                <blockquote className="blockquote text-white">
+                  <p className="mb-2">Las instrucciones para poder utilizar la Notaria son: </p>
+                  <p>Generación de Documento</p>
+                  <ol>
+                    <li> Escoge un Documento disponible. </li>
+                    <li> Ingresa la dirección del destinatario para el trámite.</li>
+                    <li> Ingresa el precio acordado en ETHER con el destinatario.</li>
+                    <li> Click en Genrar Documento.</li>
+                    <li> El destinatario visualizará el documento en el menu de Documentos Recibidos para continuar con el trámite.</li>
+                  </ol>
+                </blockquote>
+                <blockquote className="blockquote text-white">
+                  <p className="mb-2">Si alguien ha generado un Documento y eres el destinatario debes hacer lo siguiente: </p>
+                  
+                  <ol>
+                    <li> Visualiza el listado de Documentos Recibidos. </li>
+                    <li> Según el Estado del trámite deberás primero Aceptarlo.</li>
+                    <li> Una vez aceptado y deseas finalizar el Documento pagarás por el precio acordado mas el precio del documento.</li>                                        
+                  </ol>
                 </blockquote>
               </div>
 

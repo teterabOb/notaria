@@ -38,8 +38,7 @@ contract Notaria  {
     event DocumentoAdded(uint id, uint precio, string nombre, bool estado, address owner);
     event DocumentoNotariaAdded(uint id, Documento documento, string nombre,  address owner, uint precio);
     event DocumentoComprado(uint id, address owner);
-    event premioTokenDado(address recipient);
-    
+    event premioTokenDado(address recipient);    
 
     constructor(IERC20 _token) {
         token = _token;
@@ -70,10 +69,17 @@ contract Notaria  {
         
         emit DocumentoAdded(documentsCount,_precio, _nombre, _estado, msg.sender);
     }
+
+    function ValidaDirecciones(address _destinatario) internal view returns (bool)
+    {
+        require(msg.sender != address(0), "El destinatario debe ser una direccion valida");
+        require(_destinatario != address(0), "El destinatario debe ser una direccion valida");
+        require(msg.sender != _destinatario, "El emisor del documento debe ser distinto al destinatario");
+        return true;
+    }
     
     function AddDocumentoNotaria(uint _idDocumento, uint _precio, address _destinatario) public payable returns(EstadoDocumentoNotaria){
-        require(msg.sender != address(0), "El destinatario debe ser una direccion valida");
-        require(msg.sender != _destinatario, "El emisor del documento debe ser distinto al destinatario");
+
         Documento memory doc = documentos[_idDocumento];
         require(doc.id > 0, "El documento no existe en nuestros registros");
         documentosNotariaCount++;
@@ -88,35 +94,31 @@ contract Notaria  {
         return docNotaria.estado;
     }
     
-    function AceptaDocumentoNotaria(uint _idDocumento) public returns (bool){
-        
-        DocumentoNotaria memory _docNotaria = GetDocumentoNotaria(_idDocumento);
-        //require(msg.value > _docNotaria.precio , "Monto insuficiente");
+    function AceptaDocumentoNotaria(uint _idDocumento) public returns (bool){        
+        DocumentoNotaria memory _docNotaria = GetDocumentoNotaria(_idDocumento);        
         require(_docNotaria.estado == EstadoDocumentoNotaria.ABIERTO);
         require(_docNotaria.destinatario == msg.sender, "Solo el destinatario puede aceptar el Documento");        
         documentosNotaria[_idDocumento].estado = EstadoDocumentoNotaria.ACEPTADO;        
         documentosNotariaDestinatario[msg.sender][_idDocumento].estado = EstadoDocumentoNotaria.ACEPTADO;        
         require(documentosNotariaEmisor[_docNotaria.owner][_idDocumento].destinatario == _docNotaria.destinatario, "El destinatario no coincide con el de origen");
-        documentosNotariaEmisor[_docNotaria.owner][_idDocumento].estado = EstadoDocumentoNotaria.ACEPTADO;
-
-       
+        documentosNotariaEmisor[_docNotaria.owner][_idDocumento].estado = EstadoDocumentoNotaria.ACEPTADO;       
         return true;
     }
     
-    function FinalizaDocumentoNotaria(uint _idDocumento) public payable returns (bool){
-        
+    function FinalizaDocumentoNotaria(uint _idDocumento) public payable returns (bool){        
         DocumentoNotaria memory _docNotaria = GetDocumentoNotaria(_idDocumento);
-        require(msg.value > _docNotaria.precio , "Monto insuficiente");
-        require(_docNotaria.estado == EstadoDocumentoNotaria.ACEPTADO);
-        require(_docNotaria.destinatario == msg.sender, "Solo el destinatario puede Acceder al pago de este Documento");
+        uint precioDoc = _docNotaria.documento.precio;
+        require(_docNotaria.destinatario == msg.sender, "Solo el destinatario puede Acceder a la finalizacion de este Documento");
+        require(documentosNotariaEmisor[_docNotaria.owner][_idDocumento].destinatario == _docNotaria.destinatario, "Solo el destinatario puede Acceder a la finalizacion de este Documento 2");
+        require(msg.value == _docNotaria.precio + precioDoc, "El Monto enviado no corresponde al valor del precio del Documento");
+        require(_docNotaria.estado == EstadoDocumentoNotaria.ACEPTADO, "El documento debe haber sido Aceptado previamente");              
         
-        require(msg.value >= _docNotaria.precio, "El monto enviado debe ser mayor o igual al precio");
         documentosNotaria[_idDocumento].estado = EstadoDocumentoNotaria.FINALIZADO;
         documentosNotariaDestinatario[msg.sender][_idDocumento].estado = EstadoDocumentoNotaria.FINALIZADO;
-        require(documentosNotariaEmisor[_docNotaria.owner][_idDocumento].destinatario == _docNotaria.destinatario, "El destinatario no coincide con el de origen");
-        
         documentosNotariaEmisor[_docNotaria.owner][_idDocumento].estado = EstadoDocumentoNotaria.FINALIZADO;
-        payable(_docNotaria.owner).transfer(msg.value);    
+
+        payable(_docNotaria.owner).transfer(_docNotaria.precio);  
+
         if(ValidaDisponibilidadPremio() == true){
             EnviarPremioToken();
         }     
@@ -127,15 +129,14 @@ contract Notaria  {
         DocumentoNotaria memory _docNotaria = GetDocumentoNotaria(_idDocumento);
         require(_docNotaria.estado == EstadoDocumentoNotaria.ACEPTADO || _docNotaria.estado == EstadoDocumentoNotaria.ABIERTO);
         return true;
-    }   
-
+    }
     
     function GetDocumento(uint _idDocumento) public view returns(Documento memory doc){
         doc = documentos[_idDocumento];
         return doc;
     }
     
-    function GetDocumentoNotaria(uint _idDocumento) public view returns(DocumentoNotaria memory doc){
+    function GetDocumentoNotaria(uint _idDocumento) internal virtual view returns(DocumentoNotaria memory doc){
         doc = documentosNotaria[_idDocumento];
         return doc;
     }
@@ -150,8 +151,7 @@ contract Notaria  {
         return doc;
     } 
     
-    function GetOwner() public view returns (address){
-        //return owner;
+    function GetOwner() public view returns (address){        
         return owner;
     }
 

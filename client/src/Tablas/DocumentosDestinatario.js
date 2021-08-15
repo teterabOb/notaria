@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import Web3 from 'web3';
 
 class DocumentosDestinatario extends Component {
     constructor(props) {
@@ -51,7 +52,13 @@ class DocumentosDestinatario extends Component {
             return "No funciona"
         }
     }
-
+    
+    retornaPrecioEnETH(precio){
+        let web3 = window.web3
+        let precioETH = web3.utils.fromWei(precio, 'ether');
+        console.log(precioETH) 
+        return precioETH;
+    }
     execDocumento(idDocumento, idEstado) {
         if (idEstado == 0) {
             this.props.aceptaDocumento(idDocumento)
@@ -90,7 +97,7 @@ class DocumentosDestinatario extends Component {
                                             </div>
                                             <div className="m-2">
                                                 <label className="form-label">Precio</label>
-                                                <input readOnly type="text" className="form-control" defaultValue={documento.precio + " ETH"} />
+                                                <input readOnly type="text" className="form-control" defaultValue={ this.retornaPrecioEnETH(documento.precio) + " ETH"} />
                                             </div>
                                             <div className="m-2">
                                                 <label className="form-label">Destinatario</label>

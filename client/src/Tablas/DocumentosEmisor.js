@@ -20,6 +20,13 @@ class DocumentosEmisor extends Component {
         }
         return estado
     }
+    
+    retornaPrecioEnETH(precio){
+        let web3 = window.web3
+        let precioETH = web3.utils.fromWei(precio, 'ether');
+        console.log(precioETH) 
+        return precioETH;
+    }
 
     render() {
         const cantDocumentos = this.props.documentosEmisor.length
@@ -33,7 +40,7 @@ class DocumentosEmisor extends Component {
                             {this.props.documentosEmisor.map((documento, key) => {
                                 return (
                                     <li className="list-group-item" key={key}><strong>ID:</strong> {documento.id} -
-                                        <strong> Precio:</strong> <label>{documento.precio}</label> <strong>ETH</strong> - 
+                                        <strong> Precio:</strong> <label>{ this.retornaPrecioEnETH(documento.precio)}</label> <strong>ETH</strong> - 
                                         <strong> Destinatario:</strong> <label className="text-danger">{documento.destinatario}</label>  -
                                         <strong> Estado:</strong> {this.retornaEstado(documento.estado)} -
                                         <strong> Documento:</strong> {documento.documento.nombre}

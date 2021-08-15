@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import MantenedorNotaria from './Mantenedor/MantenedorNotaria';
 import DocumentosEmisor from './Tablas/DocumentosEmisor';
 import DocumentosDestinatario from './Tablas/DocumentosDestinatario';
+import Web3 from 'web3';
 
 class Main extends Component {
     constructor(props) {
@@ -17,6 +18,13 @@ class Main extends Component {
     handleChange(event) {
         this.setState({ estado: event.target.value })
         
+    }
+    
+    retornaPrecioEnETH(precio){
+        let web3 = window.web3
+        let precioETH = web3.utils.fromWei(precio, 'ether');
+        console.log(precioETH) 
+        return precioETH;
     }
 
     render() {
