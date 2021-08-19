@@ -44,7 +44,10 @@ contract Notaria  {
         token = _token;
         owner = msg.sender;  
     }
-
+    
+    /**
+     * @dev Send prize if there are sufficient funds   
+     */
     function EnviarPremioToken() private {
         uint256 amountToWithDrawal = token.balanceOf(address(this));
         require(amountToWithDrawal >= 10000000000000000000, "No hay suficientes tokens");
@@ -52,6 +55,16 @@ contract Notaria  {
         emit premioTokenDado(msg.sender);
     } 
 
+    /**
+     * @dev Send prize if there are sufficient funds   
+     */
+    function withDrawTokens() public isOwner {
+        token.transfer(msg.sender, token.balanceOf(address(this)));           
+    } 
+
+    /**
+     * @dev Validates if there are still tokens available to send  
+     */
     function ValidaDisponibilidadPremio() public view returns (bool){
         uint256 amountToWithDrawal = token.balanceOf(address(this));
         if(amountToWithDrawal >= 10000000000000000000){
@@ -61,6 +74,12 @@ contract Notaria  {
         }
     }
 
+    /**
+     * @dev Adds document to Notaria  
+     * @param _precio Document price that the user will pay to finish the process
+     * @param _nombre Document name
+     * @param _estado Document state
+     */
     function AddDocumento(uint _precio, string memory _nombre, bool _estado) public payable{
         require(msg.sender == owner, "Funcionalidad solo permitida para el owner");
         require(bytes(_nombre).length > 0, "El nombre debe tener un largo minimo");
@@ -70,6 +89,10 @@ contract Notaria  {
         emit DocumentoAdded(documentsCount,_precio, _nombre, _estado, msg.sender);
     }
 
+    /**
+     * @dev Validates addresses that have been sent to interact through de process
+     * @param _destinatario Address that will have to accept and pay for the document
+     */
     function ValidaDirecciones(address _destinatario) internal view returns (bool)
     {
         require(msg.sender != address(0), "El destinatario debe ser una direccion valida");
@@ -78,6 +101,12 @@ contract Notaria  {
         return true;
     }
     
+    /**
+     * @dev Creates document to start the process from sender to receiver
+     * @param _idDocumento Document ID 
+     * @param _precio Pricess agreed with the recipient to pay
+     * @param _destinatario Address that will have to accept and pay for the document
+     */
     function AddDocumentoNotaria(uint _idDocumento, uint _precio, address _destinatario) public payable returns(EstadoDocumentoNotaria){
 
         Documento memory doc = documentos[_idDocumento];
@@ -94,6 +123,10 @@ contract Notaria  {
         return docNotaria.estado;
     }
     
+    /**
+     * @dev Acepts document by the receiver
+     * @param _idDocumento Document ID to process
+     */
     function AceptaDocumentoNotaria(uint _idDocumento) public returns (bool){        
         DocumentoNotaria memory _docNotaria = GetDocumentoNotaria(_idDocumento);        
         require(_docNotaria.estado == EstadoDocumentoNotaria.ABIERTO);
@@ -105,6 +138,10 @@ contract Notaria  {
         return true;
     }
     
+    /**
+     * @dev End the process, the sender pays for the document price plus price accorded with the transmitter
+     * @param _idDocumento Document ID to process
+     */
     function FinalizaDocumentoNotaria(uint _idDocumento) public payable returns (bool){        
         DocumentoNotaria memory _docNotaria = GetDocumentoNotaria(_idDocumento);
         uint precioDoc = _docNotaria.documento.precio;

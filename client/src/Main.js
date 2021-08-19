@@ -23,7 +23,7 @@ class Main extends Component {
     retornaPrecioEnETH(precio){
         let web3 = window.web3
         let precioETH = web3.utils.fromWei(precio, 'ether');
-        console.log(precioETH) 
+        
         return precioETH;
     }
 

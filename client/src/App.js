@@ -1,12 +1,12 @@
 import React, { Component } from "react";
-import PresupuestoContract from "./contracts/Presupuesto.json";
 import CLPTokenContract from "./contracts/CLPToken.json";
 import NotariaContract from "./contracts/Notaria.json";
+import ETHChainlink from "./contracts/ETHChainlink.json";
 import Web3 from 'web3';
 import Navbar from './Navbar';
 import Main from './Main';
-
 import "./App.css";
+
 
 class App extends Component {
   constructor(props) {
@@ -21,6 +21,7 @@ class App extends Component {
       owner: "0x0000000000000000000000000000000000000000",
       cantTokenUsuario: 0,
       cantTokenContrato: 0,
+      precioETH: 0,
 
     }
 
@@ -56,13 +57,12 @@ class App extends Component {
       });
     }
     else if (window.web3) {
-      window.web3 = new Web3(window.web3.currentProvider)
-
+      //window.web3 = new Web3(window.web3.currentProvider)
+      const web3 = new Web3(new Web3.providers.HttpProvider("https://rinkeby.infura.io/v3/46bacf9bb3c14f039b7072fba6c10455"));
     }
     else {
 
     }
-
   }
 
   setDefaultVariables() {
@@ -73,37 +73,72 @@ class App extends Component {
   }
 
   async loadBlockChainData() {
-    const web3 = window.web3
+    let web3 = window.web3
+
+    if (typeof web3 != 'undefined') {
+      web3 = new Web3(web3.currentProvider)
+
+    } else {
+      web3 = new Web3(new Web3.providers.HttpProvider("https://rinkeby.infura.io/v3/46bacf9bb3c14f039b7072fba6c10455"));
+    }
+
 
     //Carga cuenta
     const accounts = await web3.eth.getAccounts()
+
+
+
     this.setState({ account: accounts[0] })
-    const networkId = await web3.eth.net.getId();
+    //const networkId = await web3.eth.net.getId();
 
-    const networkDataPresupuesto = PresupuestoContract.networks[networkId]
-    const networkDataNotaria = NotariaContract.networks[networkId]
-    const networkDataCLPToken = CLPTokenContract.networks[networkId]
+    //var CLPTAbi = JSON.parse('([{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"subtractedValue","type":"uint256"}],"name":"decreaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"addedValue","type":"uint256"}],"name":"increaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"recipient","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"sender","type":"address"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"}]');
+    //var NotariaAbi = JSON.parse('([{"inputs":[{"internalType":"contract IERC20","name":"_token","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"id","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"precio","type":"uint256"},{"indexed":false,"internalType":"string","name":"nombre","type":"string"},{"indexed":false,"internalType":"bool","name":"estado","type":"bool"},{"indexed":false,"internalType":"address","name":"owner","type":"address"}],"name":"DocumentoAdded","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"id","type":"uint256"},{"indexed":false,"internalType":"address","name":"owner","type":"address"}],"name":"DocumentoComprado","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"id","type":"uint256"},{"components":[{"internalType":"uint256","name":"id","type":"uint256"},{"internalType":"uint256","name":"precio","type":"uint256"},{"internalType":"string","name":"nombre","type":"string"},{"internalType":"bool","name":"estado","type":"bool"}],"indexed":false,"internalType":"struct Notaria.Documento","name":"documento","type":"tuple"},{"indexed":false,"internalType":"string","name":"nombre","type":"string"},{"indexed":false,"internalType":"address","name":"owner","type":"address"},{"indexed":false,"internalType":"uint256","name":"precio","type":"uint256"}],"name":"DocumentoNotariaAdded","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"recipient","type":"address"}],"name":"premioTokenDado","type":"event"},{"inputs":[{"internalType":"uint256","name":"_idDocumento","type":"uint256"}],"name":"AceptaDocumentoNotaria","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_precio","type":"uint256"},{"internalType":"string","name":"_nombre","type":"string"},{"internalType":"bool","name":"_estado","type":"bool"}],"name":"AddDocumento","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_idDocumento","type":"uint256"},{"internalType":"uint256","name":"_precio","type":"uint256"},{"internalType":"address","name":"_destinatario","type":"address"}],"name":"AddDocumentoNotaria","outputs":[{"internalType":"enum Notaria.EstadoDocumentoNotaria","name":"","type":"uint8"}],"stateMutability":"payable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_idDocumento","type":"uint256"}],"name":"FinalizaDocumentoNotaria","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"payable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_idDocumento","type":"uint256"}],"name":"GetDocumento","outputs":[{"components":[{"internalType":"uint256","name":"id","type":"uint256"},{"internalType":"uint256","name":"precio","type":"uint256"},{"internalType":"string","name":"nombre","type":"string"},{"internalType":"bool","name":"estado","type":"bool"}],"internalType":"struct Notaria.Documento","name":"doc","type":"tuple"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_idDocumento","type":"uint256"},{"internalType":"address","name":"_direccion","type":"address"}],"name":"GetDocumentoNotariaDestinatario","outputs":[{"components":[{"internalType":"uint256","name":"id","type":"uint256"},{"components":[{"internalType":"uint256","name":"id","type":"uint256"},{"internalType":"uint256","name":"precio","type":"uint256"},{"internalType":"string","name":"nombre","type":"string"},{"internalType":"bool","name":"estado","type":"bool"}],"internalType":"struct Notaria.Documento","name":"documento","type":"tuple"},{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"destinatario","type":"address"},{"internalType":"uint256","name":"precio","type":"uint256"},{"internalType":"enum Notaria.EstadoDocumentoNotaria","name":"estado","type":"uint8"}],"internalType":"struct Notaria.DocumentoNotaria","name":"doc","type":"tuple"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_idDocumento","type":"uint256"},{"internalType":"address","name":"_direccion","type":"address"}],"name":"GetDocumentoNotariaEmisor","outputs":[{"components":[{"internalType":"uint256","name":"id","type":"uint256"},{"components":[{"internalType":"uint256","name":"id","type":"uint256"},{"internalType":"uint256","name":"precio","type":"uint256"},{"internalType":"string","name":"nombre","type":"string"},{"internalType":"bool","name":"estado","type":"bool"}],"internalType":"struct Notaria.Documento","name":"documento","type":"tuple"},{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"destinatario","type":"address"},{"internalType":"uint256","name":"precio","type":"uint256"},{"internalType":"enum Notaria.EstadoDocumentoNotaria","name":"estado","type":"uint8"}],"internalType":"struct Notaria.DocumentoNotaria","name":"doc","type":"tuple"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"GetOwner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_idDocumento","type":"uint256"}],"name":"RechazaDocumentoNotaria","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"payable","type":"function"},{"inputs":[],"name":"ValidaDisponibilidadPremio","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"documentos","outputs":[{"internalType":"uint256","name":"id","type":"uint256"},{"internalType":"uint256","name":"precio","type":"uint256"},{"internalType":"string","name":"nombre","type":"string"},{"internalType":"bool","name":"estado","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"documentosNotaria","outputs":[{"internalType":"uint256","name":"id","type":"uint256"},{"components":[{"internalType":"uint256","name":"id","type":"uint256"},{"internalType":"uint256","name":"precio","type":"uint256"},{"internalType":"string","name":"nombre","type":"string"},{"internalType":"bool","name":"estado","type":"bool"}],"internalType":"struct Notaria.Documento","name":"documento","type":"tuple"},{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"destinatario","type":"address"},{"internalType":"uint256","name":"precio","type":"uint256"},{"internalType":"enum Notaria.EstadoDocumentoNotaria","name":"estado","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"documentosNotariaCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"},{"internalType":"uint256","name":"","type":"uint256"}],"name":"documentosNotariaDestinatario","outputs":[{"internalType":"uint256","name":"id","type":"uint256"},{"components":[{"internalType":"uint256","name":"id","type":"uint256"},{"internalType":"uint256","name":"precio","type":"uint256"},{"internalType":"string","name":"nombre","type":"string"},{"internalType":"bool","name":"estado","type":"bool"}],"internalType":"struct Notaria.Documento","name":"documento","type":"tuple"},{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"destinatario","type":"address"},{"internalType":"uint256","name":"precio","type":"uint256"},{"internalType":"enum Notaria.EstadoDocumentoNotaria","name":"estado","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"},{"internalType":"uint256","name":"","type":"uint256"}],"name":"documentosNotariaEmisor","outputs":[{"internalType":"uint256","name":"id","type":"uint256"},{"components":[{"internalType":"uint256","name":"id","type":"uint256"},{"internalType":"uint256","name":"precio","type":"uint256"},{"internalType":"string","name":"nombre","type":"string"},{"internalType":"bool","name":"estado","type":"bool"}],"internalType":"struct Notaria.Documento","name":"documento","type":"tuple"},{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"destinatario","type":"address"},{"internalType":"uint256","name":"precio","type":"uint256"},{"internalType":"enum Notaria.EstadoDocumentoNotaria","name":"estado","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"documentsCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"totalDocumentosDestinatario","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"totalDocumentosEmisor","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"stateMutability":"payable","type":"receive"}]');
 
+    //var CLPTokenContract = web3.eth.contract(CLPTAbi);
+    //var NotariaContract = web3.eth.contract(NotariaAbi);
 
-    if (networkDataNotaria) {
+    //var CLPTInstance  = CLPTokenContract.at('0xe02613bd4655B8E81D684759Af001CdF9E12269f')
+    //var NotariaInstance = NotariaContract.at('0x2c55D39B02eAe91e59253012b756dAf8C48f91Bb')
 
+    //console.log(CLPTInstance)
+    //console.log(NotariaInstance)
+
+    //const networkDataNotaria = NotariaContract.networks[networkId]
+    //const networkDataCLPToken = CLPTokenContract.networks[networkId]
+
+    //if (networkDataNotaria) {
+    if (web3) {
       //Limpia los documentos cliente
       this.setDefaultVariables();
 
-      const presupuesto = new web3.eth.Contract(PresupuestoContract.abi, networkDataPresupuesto.address);
-      const notaria = new web3.eth.Contract(NotariaContract.abi, networkDataNotaria.address);
-      const CLPToken = new web3.eth.Contract(CLPTokenContract.abi, networkDataCLPToken.address);
+      //const notaria = new web3.eth.Contract(NotariaContract.abi, networkDataNotaria.address);
+      const notaria = new web3.eth.Contract(NotariaContract.abi, '0x2c55D39B02eAe91e59253012b756dAf8C48f91Bb');
+      //const CLPToken = new web3.eth.Contract(CLPTokenContract.abi, networkDataCLPToken.address);
+      const CLPToken = new web3.eth.Contract(CLPTokenContract.abi, '0xe02613bd4655B8E81D684759Af001CdF9E12269f');
 
-      this.setState({ presupuesto, notaria })
-      //Las funciones call leen data
-      const regionesCount = await presupuesto.methods.RegionCount().call()
+      const aggregatorV3InterfaceABI = [{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"description","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint80","name":"_roundId","type":"uint80"}],"name":"getRoundData","outputs":[{"internalType":"uint80","name":"roundId","type":"uint80"},{"internalType":"int256","name":"answer","type":"int256"},{"internalType":"uint256","name":"startedAt","type":"uint256"},{"internalType":"uint256","name":"updatedAt","type":"uint256"},{"internalType":"uint80","name":"answeredInRound","type":"uint80"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"latestRoundData","outputs":[{"internalType":"uint80","name":"roundId","type":"uint80"},{"internalType":"int256","name":"answer","type":"int256"},{"internalType":"uint256","name":"startedAt","type":"uint256"},{"internalType":"uint256","name":"updatedAt","type":"uint256"},{"internalType":"uint80","name":"answeredInRound","type":"uint80"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"version","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}];
+      const ETHPrice = new web3.eth.Contract(aggregatorV3InterfaceABI, '0x8A753747A1Fa494EC906cE90E9f37563A8AF630e');
+      ETHPrice.methods.latestRoundData().call()
+                                      .then((roundData) => {
+                                          // Do something with roundData
+                                          this.setState({ precioETH: roundData.answer})
+                                          
+                                      });
+
+
+      this.setState({ notaria })
+      //Las funciones call leen data      
       const documentosCount = await notaria.methods.documentsCount().call()
       const owner = await notaria.methods.GetOwner().call()
 
-      this.setState({ regionesCount, documentosCount, owner: owner })
+      this.setState({ documentosCount, owner: owner })
 
       const totalDocumentosEmisor = await notaria.methods.totalDocumentosEmisor(this.state.account).call()
       const totalDocumentosDestinatario = await notaria.methods.totalDocumentosDestinatario(this.state.account).call()
+
+
+
+      
 
       //Documentos Emisor
       for (var a = 1; a <= totalDocumentosEmisor; a++) {
@@ -141,8 +176,6 @@ class App extends Component {
         { this.setState({ cantTokenContrato: web3.utils.fromWei(tokenString, 'ether') }) }
       }
 
-      console.log(this.state.documentosDestinatario)
-
       this.setState({ loading: false })
 
     } else {
@@ -150,6 +183,8 @@ class App extends Component {
       this.setDefaultVariables()
     }
   }
+
+
 
   nuevoDocumento(precio, nombre, estado) {
     this.setState({ loading: true })
@@ -167,8 +202,8 @@ class App extends Component {
 
     await this.state.notaria.methods.AceptaDocumentoNotaria(id).send({ from: this.state.account })
       .on('error', (error) => {
-        console.log('error')
-        console.log(error)
+        
+        
       })
       .once('receipt', (receipt) => {
         this.loadBlockChainData()
@@ -178,9 +213,9 @@ class App extends Component {
   async finalizaDocumento(id) {
     let docDestinatario = await this.state.notaria.methods.documentosNotariaDestinatario(this.state.account, id).call()
     let precioDocumento = parseInt(docDestinatario.documento.precio, 10)
-    let precioFinalizacion = parseInt(docDestinatario.precio,10)
+    let precioFinalizacion = parseInt(docDestinatario.precio, 10)
     let precioFinal = (precioDocumento + precioFinalizacion)
-      
+
     await this.state.notaria.methods.FinalizaDocumentoNotaria(id).send({ from: this.state.account, value: precioFinal })
       .on('error', (error) => {
 
@@ -188,7 +223,7 @@ class App extends Component {
       .once('receipt', (receipt) => {
         this.loadBlockChainData()
       })
-      
+
   };
 
   async addDocumentoNotaria(id, precio, destinatario) {
@@ -210,7 +245,9 @@ class App extends Component {
 
     return (
       <div className="bg-light pt-5">
-        <Navbar account={this.state.account} />
+        <Navbar account={this.state.account} 
+                precioETH={this.state.precioETH}
+        />
         <div className="container-fluid mt-5">
           <div className="row mb-3">
             <div className="col-lg-12 d-flex justify-content-center">
@@ -237,11 +274,11 @@ class App extends Component {
                 </blockquote>
                 <blockquote className="blockquote text-white">
                   <p className="mb-2">Si alguien ha generado un Documento y eres el destinatario debes hacer lo siguiente: </p>
-                  
+
                   <ol>
                     <li> Visualiza el listado de Documentos Recibidos. </li>
                     <li> Según el Estado del trámite deberás primero Aceptarlo.</li>
-                    <li> Una vez aceptado y deseas finalizar el Documento pagarás por el precio acordado mas el precio del documento.</li>                                        
+                    <li> Una vez aceptado y deseas finalizar el Documento pagarás por el precio acordado mas el precio del documento.</li>
                   </ol>
                 </blockquote>
               </div>
@@ -267,6 +304,7 @@ class App extends Component {
                   aceptaDocumento={this.aceptaDocumento}
                   finalizaDocumento={this.finalizaDocumento}
                   addDocumentoNotaria={this.addDocumentoNotaria}
+                  
                 />}
 
             </main>

@@ -1,6 +1,11 @@
 import React, { Component } from 'react';
 
+
 class Navbar extends Component {
+    constructor(props) {
+        super(props)
+    }
+    
     render() {
         return (
             <nav className="navbar fixed-top navbar-expand-lg navbar-dark bg-dark text-white ">
@@ -20,7 +25,7 @@ class Navbar extends Component {
                          
                     </span>
                     <span className="navbar-text border border-white rounded p-2 text-white bg-primary m-2">                        
-                        <h6>ETH <strong>$ 42.000</strong></h6>
+                        <h6>ETH <strong>$ {this.props.precioETH}</strong></h6>
                          
                     </span>
                 </div>

@@ -1,4 +1,5 @@
 const path = require("path");
+const HDWalletProvider = require('truffle-hdwallet-provider')
 
 module.exports = {
   // See <http://truffleframework.com/docs/advanced/configuration>
@@ -9,9 +10,10 @@ module.exports = {
       host: 'localhost',
       port: 7545,
       network_id: '*',
-      gas: 5000000
-     
+      gas: 5000000     
     }
+
+
   },
     // Configure your compilers
     compilers: {
